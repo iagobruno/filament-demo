@@ -16,3 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::domain('{blog}.example.com')->get('/', function () {
+    return view('welcome');
+})->name('blog-homepage');
