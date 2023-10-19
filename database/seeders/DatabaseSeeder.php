@@ -14,9 +14,13 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        $email = 'admin@admin.com';
+        $password = '12345678';
+        \App\Models\User::factory()->create(
+            compact('email', 'password')
+        );
+        dump("Admin account created succesfully!
+Email: $email
+Password: $password");
     }
 }
