@@ -21,6 +21,11 @@ class Blog extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
         return $this->belongsTo(User::class);
     }
 
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
     protected static function booted(): void
     {
         if (auth()->check()) {

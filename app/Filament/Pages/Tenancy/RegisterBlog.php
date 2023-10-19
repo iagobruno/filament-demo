@@ -2,10 +2,10 @@
 
 namespace App\Filament\Pages\Tenancy;
 
+use App\Filament\Resources\PostResource;
 use App\Models\Blog;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\{Placeholder, TextInput};
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Pages\Tenancy\RegisterTenant;
@@ -53,7 +53,7 @@ class RegisterBlog extends RegisterTenant
             ->actions([
                 NotificationAction::make('create-post')
                     ->label('Criar primeira postagem')
-                    ->url('https://google.com')
+                    ->url(PostResource::getUrl('create', ['tenant' => $blog->slug]))
                     ->button(),
                 NotificationAction::make('view')
                     ->label('Visualizar')

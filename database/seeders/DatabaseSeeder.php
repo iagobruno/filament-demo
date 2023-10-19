@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\{Blog, User};
+use App\Models\{Blog, Post, User};
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,7 +18,10 @@ class DatabaseSeeder extends Seeder
         $email = 'admin@admin.com';
         $password = '12345678';
         User::factory()
-            ->has(Blog::factory()->count(2))
+            ->has(
+                Blog::factory(2)
+                    ->has(Post::factory(10))
+            )
             ->create(compact('email', 'password'));
 
         dump("Admin account created succesfully!

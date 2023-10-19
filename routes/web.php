@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Blog;
+use App\Models\Post;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,6 +19,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::domain('{blog}.example.com')->get('/', function () {
-    return view('welcome');
-})->name('blog-homepage');
+Route::domain('{blog}.example.com')->group(function () {
+    Route::get('/', function (Blog $blog) {
+        return $blog;
+    })->name('blog-homepage');
+
+    Route::get('/post/{post}', function (Post $post) {
+        return $post;
+    })->name('blog-post');
+});

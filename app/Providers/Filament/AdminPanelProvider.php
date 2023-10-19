@@ -33,7 +33,6 @@ class AdminPanelProvider extends PanelProvider
             ->tenant(
                 \App\Models\Blog::class,
                 slugAttribute: 'slug',
-                ownershipRelationship: 'owner'
             )
             ->tenantRegistration(\App\Filament\Pages\Tenancy\RegisterBlog::class)
             ->colors([
