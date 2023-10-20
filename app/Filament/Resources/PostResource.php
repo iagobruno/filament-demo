@@ -69,7 +69,11 @@ class PostResource extends Resource
                         ->selectablePlaceholder(false),
                     Select::make('categories')
                         ->label('Categorias:')
-                        ->relationship('categories', 'name')
+                        ->relationship(
+                            'categories',
+                            titleAttribute: 'name',
+                            modifyQueryUsing: fn ($query) => $query->whereBelongsTo(Filament::getTenant())
+                        )
                         ->multiple()
                         ->searchable()
                         ->preload()
