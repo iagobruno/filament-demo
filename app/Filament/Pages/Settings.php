@@ -20,8 +20,8 @@ class Settings extends Page
     protected ?string $subheading = 'Gerencie as configurações do seu projeto';
     protected static ?string $navigationLabel = 'Configurações';
     protected static ?string $navigationIcon = 'heroicon-o-cog-8-tooth';
-    protected static ?int $navigationSort = 2;
-    protected static string $view = 'filament.pages.settings';
+    protected static ?int $navigationSort = 3;
+    protected static string $view = 'filament.pages.form-page';
 
     public array $data = [];
 
@@ -96,36 +96,6 @@ class Settings extends Page
                             ->unique('projects', 'slug', ignorable: Filament::getTenant()),
                     ]),
 
-                Section::make('Aparência')
-                    ->description('Personalize como as pessoas verão seu site')
-                    ->aside()
-                    ->schema([
-                        Grid::make()->schema([
-                            FileUpload::make('logo')
-                                ->label('Logotipo')
-                                ->image()
-                                ->panelAspectRatio('2:1'),
-                            FileUpload::make('favicon')
-                                ->label('Favicon')
-                                ->image()
-                                ->imageCropAspectRatio('1:1')
-                                ->panelAspectRatio('2:1')
-                                ->helperText('Ícone que será mostrado na aba do navegador do usuário'),
-                        ]),
-                        Select::make('theme')
-                            ->label('Esquema de cores')
-                            ->options([
-                                'dark' => 'Escuro',
-                                'light' => 'Claro'
-                            ])
-                            ->selectablePlaceholder(false),
-                        ColorPicker::make('color')
-                            ->label('Cor primária')
-                            ->helperText('Será usado nos links e botões'),
-                        ColorPicker::make('background_color')
-                            ->label('Plano de fundo'),
-                    ]),
-
                 Section::make('Privacidade')
                     ->description('Configurações de segurança')
                     ->aside()
@@ -140,7 +110,7 @@ class Settings extends Page
             ]);
     }
 
-    protected function getFormActions(): array
+    public function getFormActions(): array
     {
         return [
             Actions\Action::make('save')

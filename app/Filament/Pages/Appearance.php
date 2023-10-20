@@ -1,0 +1,108 @@
+<?php
+
+namespace App\Filament\Pages;
+
+use Filament\Pages\Page;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Pages\Concerns\InteractsWithFormActions;
+use Filament\Forms\Form;
+use Filament\Actions;
+use Filament\Facades\Filament;
+use Filament\Forms\Components\{Section, FileUpload, ColorPicker, Grid, Select};
+use Filament\Notifications\Notification;
+use Filament\Notifications\Actions\Action as NotificationAction;
+
+class Appearance extends Page
+{
+    use InteractsWithForms, InteractsWithFormActions;
+
+    protected static ?string $title = 'Aparência';
+    protected ?string $subheading = 'Personalize como as pessoas verão seu site';
+    protected static ?string $navigationLabel = 'Aparência';
+    protected static ?string $navigationIcon = 'heroicon-o-paint-brush';
+    protected static ?int $navigationSort = 2;
+    protected static string $view = 'filament.pages.form-page';
+
+    public array $data = [];
+
+    public function mount(): void
+    {
+        $project = Filament::getTenant();
+        $this->form->fill($project->settings);
+    }
+
+    public function save(): void
+    {
+        $updatedSettings = collect($this->form->getState())
+            // ->dd() // Debug
+            ->whereNotNull();
+
+        $project = Filament::getTenant();
+        $project->update([
+            'settings' => [
+                ...$project->settings ?? [],
+                ...$updatedSettings,
+            ],
+        ]);
+
+        Notification::make()
+            ->title('Alterações foram salvas!')
+            ->success()
+            ->seconds(10)
+            ->actions([
+                NotificationAction::make('view')
+                    ->label('Visualizar')
+                    ->url(route('blog-homepage', [$project->slug]))
+                    ->icon('heroicon-o-eye')
+                    ->openUrlInNewTab(),
+            ])
+            ->send();
+    }
+
+    public function form(Form $form): Form
+    {
+        return $form
+            ->statePath('data')
+            ->schema([
+                Section::make('Logos')->schema([
+                    FileUpload::make('logo')
+                        ->label('Logotipo')
+                        ->image()
+                        ->panelAspectRatio('2:1'),
+                    FileUpload::make('favicon')
+                        ->label('Favicon')
+                        ->image()
+                        ->imageCropAspectRatio('1:1')
+                        ->panelAspectRatio('2:1')
+                        ->helperText('Ícone que será mostrado na aba do navegador do usuário'),
+                ])
+                    ->columns(2),
+
+                Section::make('Cores')->schema([
+                    Select::make('theme')
+                        ->label('Esquema de cores')
+                        ->options([
+                            'dark' => 'Escuro',
+                            'light' => 'Claro'
+                        ])
+                        ->selectablePlaceholder(false),
+                    ColorPicker::make('color')
+                        ->label('Cor primária')
+                        ->helperText('Será usado nos links e botões'),
+                    ColorPicker::make('background_color')
+                        ->label('Plano de fundo'),
+                ]),
+            ])
+            ->columns(2);
+    }
+
+    public function getFormActions(): array
+    {
+        return [
+            Actions\Action::make('save')
+                ->label('Salvar alterações')
+                ->submit('save')
+                ->keyBindings(['mod+s']),
+        ];
+    }
+}
