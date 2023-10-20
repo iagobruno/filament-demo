@@ -68,7 +68,8 @@ class CategoryResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->emptyStateHeading('Nenhuma categoria criada ainda');
     }
 
     public static function getRelations(): array
