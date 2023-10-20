@@ -16,6 +16,17 @@ class Blog extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
         'owner_id'
     ];
 
+    public $casts = [
+        'settings' => 'array',
+    ];
+
+    public static $defaultSettings = [
+        'theme' => 'light',
+        'public' => true,
+        'indexing' => true,
+        'adult' => false,
+    ];
+
     public function owner()
     {
         return $this->belongsTo(User::class);
@@ -38,6 +49,10 @@ class Blog extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
                 $blog->owner_id = auth()->user()->id;
             });
         }
+
+        static::creating(function (Blog $blog) {
+            $blog->settings = self::$defaultSettings;
+        });
     }
 
     public function sluggable(): array

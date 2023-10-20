@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Blog>
@@ -18,7 +19,7 @@ class BlogFactory extends Factory
     {
         return [
             'title' => $title = fake()->words(2, true),
-            'slug' => str($title)->slug()
+            'slug' => Str::slug($title),
         ];
     }
 }

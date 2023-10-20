@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->string('slug')->unique();
             $table->foreignId('owner_id')->constrained('users');
+            $table->json('settings')->default('{}');
             $table->timestamps();
         });
     }

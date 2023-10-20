@@ -5,7 +5,7 @@ namespace App\Filament\Pages\Tenancy;
 use App\Filament\Resources\PostResource;
 use App\Models\Blog;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\{Placeholder, TextInput};
+use Filament\Forms\Components\{Placeholder, TextInput, Toggle};
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Pages\Tenancy\RegisterTenant;
@@ -31,7 +31,8 @@ class RegisterBlog extends RegisterTenant
                     ->label('Título')
                     ->required()
                     ->maxLength(255)
-                    ->live(debounce: 300),
+                    ->live(debounce: 300)
+                    ->autocomplete(false),
                 Placeholder::make('slug')
                     ->label('O endereço do seu blog será:')
                     ->content(function (Get $get): string {
@@ -39,11 +40,17 @@ class RegisterBlog extends RegisterTenant
                         return route('blog-homepage', ['blog' => $slug]);
                     })
                     ->visible(fn (Get $get) => strlen($get('title') > 0)),
+                Toggle::make('terms_of_service')
+                    ->label('Concordo com os termos de serviço.')
+                    ->accepted(),
             ]);
     }
 
     protected function handleRegistration(array $data): Blog
     {
+        $data = collect($data)
+            ->except(['terms_of_service'])
+            ->toArray();
         $blog = Blog::create($data);
 
         Notification::make()

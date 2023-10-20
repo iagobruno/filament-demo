@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\PostStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Post>
@@ -19,7 +20,7 @@ class PostFactory extends Factory
     {
         return [
             'title' => $title = fake()->words(6, true),
-            'slug' => str($title)->slug(),
+            'slug' => Str::slug($title),
             'content' => fake()->paragraphs(4, asText: true),
             'status' => fake()->randomElement(PostStatus::values())
         ];
