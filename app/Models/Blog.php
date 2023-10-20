@@ -26,6 +26,11 @@ class Blog extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
         return $this->hasMany(Post::class);
     }
 
+    public function categories()
+    {
+        return $this->hasMany(Category::class);
+    }
+
     protected static function booted(): void
     {
         if (auth()->check()) {

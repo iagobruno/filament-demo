@@ -27,37 +27,87 @@ class PostResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('title')
-                    ->label('Título:')
-                    ->required()
-                    ->maxLength(255)
-                    ->live(onBlur: true)
-                    ->helperText(function ($state, $record) {
-                        if ($record?->slug) $slug = $record->slug;
-                        else $slug = $state ? SlugService::createSlug(Post::class, 'slug', $state) : '...';
+                // Content card
+                Forms\Components\Section::make()->schema([
+                    Forms\Components\TextInput::make('title')
+                        ->label('Título:')
+                        ->required()
+                        ->maxLength(255)
+                        ->live(onBlur: true)
+                        ->helperText(function ($state, $record) {
+                            if ($record?->slug) $slug = $record->slug;
+                            else $slug = $state ? SlugService::createSlug(Post::class, 'slug', $state) : '...';
 
-                        return route('blog-post', ['post' => $slug, 'blog' => Filament::getTenant()->slug]);
-                    })
-                    ->autocomplete(false),
-                Forms\Components\Select::make('status')
-                    ->label('Status:')
-                    ->required()
-                    ->options(function () {
-                        $options = [];
-                        foreach (PostStatus::cases() as $item) {
-                            $options[$item->value] = PostStatus::from($item->value)->getLabel();
-                        }
-                        return $options;
-                    })
-                    ->default('draft')
-                    ->selectablePlaceholder(false),
-                Forms\Components\RichEditor::make('content')
-                    ->label('')
-                    ->required()
-                    ->disableToolbarButtons(['attachFiles'])
-                    ->columnSpanFull(),
+                            return route('blog-post', ['post' => $slug, 'blog' => Filament::getTenant()->slug]);
+                        })
+                        ->autocomplete(false)
+                        ->columnSpanFull(),
+                    Forms\Components\RichEditor::make('content')
+                        ->label('')
+                        ->required()
+                        ->disableToolbarButtons(['attachFiles'])
+                        ->columnSpanFull(),
+                ])
+                    ->columns([
+                        'sm' => 2,
+                    ])
+                    ->columnSpan(2),
+
+                // Info card
+                Forms\Components\Section::make()->schema([
+                    Forms\Components\Select::make('status')
+                        ->label('Status:')
+                        ->required()
+                        ->options(function () {
+                            $options = [];
+                            foreach (PostStatus::cases() as $item) {
+                                $options[$item->value] = PostStatus::from($item->value)->getLabel();
+                            }
+                            return $options;
+                        })
+                        ->default('draft')
+                        ->selectablePlaceholder(false),
+                    Forms\Components\Select::make('categories')
+                        ->label('Categorias:')
+                        ->relationship('categories', 'name')
+                        ->multiple()
+                        ->searchable()
+                        ->preload()
+                        ->createOptionForm([
+                            Forms\Components\TextInput::make('name')
+                                ->required()
+                                ->maxLength(255),
+                        ]),
+                    Forms\Components\Placeholder::make('created_at')
+                        ->label('Criado em:')
+                        ->content(fn (?Post $record) => $record?->created_at->format('d/m/Y à\s H:i') ?? '-'),
+                    Forms\Components\Placeholder::make('updated_at')
+                        ->label('Atualizado em:')
+                        ->content(fn (?Post $record) => $record?->updated_at->format('d/m/Y à\s H:i') ?? '-'),
+                    Forms\Components\Placeholder::make('words_count')
+                        ->label('Palavras:')
+                        ->content(fn (?Post $record) => str($record?->content)->wordCount())
+                        ->extraAttributes([
+                            'x-init' => "
+                                    document.getElementById('data.content').addEventListener('keyup', debounce((evt) => {
+                                        \$el.innerText = wordCount(evt.target.innerText);
+                                    }))
+                                    function wordCount(text) {
+                                        return text.trim().split(/\w+/gim).length-1;
+                                    }
+                                    function debounce(func, timeout = 500){
+                                        let timer;
+                                        return (...args) => {
+                                          clearTimeout(timer);
+                                          timer = setTimeout(() => func.apply(this, args), timeout);
+                                        };
+                                    }
+                                "
+                        ]),
+                ])
+                    ->columnSpan(1),
             ])
-            ->columns(1);
+            ->columns(3);
     }
 
     public static function table(Table $table): Table
@@ -70,6 +120,12 @@ class PostResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->size('sm'),
+                Tables\Columns\TextColumn::make('categories.name')
+                    ->label('Categorias')
+                    ->badge()
+                    ->color('gray')
+                    ->size('sm')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y à\s H:i')
@@ -85,6 +141,10 @@ class PostResource extends Resource
             ])
             ->defaultSort('created_at', 'DESC')
             ->filters([
+                Tables\Filters\SelectFilter::make('categories')
+                    ->relationship('categories', 'name')
+                    ->searchable()
+                    ->preload(),
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Status:')
                     ->options([

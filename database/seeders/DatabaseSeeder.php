@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\{Blog, Post, User};
+use App\Models\{Blog, Category, Post, User};
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,7 +20,15 @@ class DatabaseSeeder extends Seeder
         User::factory()
             ->has(
                 Blog::factory(2)
-                    ->has(Post::factory(10))
+                    ->has(
+                        Post::factory(10)
+                            ->has(
+                                Category::factory(3)
+                                    ->state(function (array $attributes, Post $post) {
+                                        return ['blog_id' => $post->blog_id];
+                                    })
+                            )
+                    )
             )
             ->create(compact('email', 'password'));
 
