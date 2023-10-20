@@ -2,18 +2,18 @@
 
 namespace App\Enums;
 
+use App\Enums\Concerns\Utilities;
 use Filament\Support\Contracts\{HasColor, HasIcon, HasLabel};
 
 enum PostStatus: string implements HasLabel, HasIcon, HasColor
 {
+    use Utilities;
+
     case Draft = 'draft';
     case Public = 'public';
     case Private = 'private';
 
-    public static function values()
-    {
-        return array_column(self::cases(), 'value');
-    }
+    public const DEFAULT = self::Draft;
 
     public function getLabel(): ?string
     {
@@ -24,7 +24,7 @@ enum PostStatus: string implements HasLabel, HasIcon, HasColor
         };
     }
 
-    public function getColor(): string | array | null
+    public function getColor(): ?string
     {
         return match ($this) {
             self::Draft => 'gray',

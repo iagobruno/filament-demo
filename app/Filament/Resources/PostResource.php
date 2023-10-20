@@ -8,10 +8,12 @@ use App\Filament\Resources\PostResource\RelationManagers;
 use App\Models\Post;
 use Cviebrock\EloquentSluggable\Services\SlugService;
 use Filament\Facades\Filament;
-use Filament\Forms;
+use Filament\Forms\Components\{Placeholder, RichEditor, Section, Select, TextInput};
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Tables\Columns\{TextColumn};
+use Filament\Tables\Filters\{SelectFilter};
+use Filament\Tables\Actions\{Action, BulkActionGroup, EditAction, DeleteAction, DeleteBulkAction};
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -28,8 +30,8 @@ class PostResource extends Resource
         return $form
             ->schema([
                 // Content card
-                Forms\Components\Section::make()->schema([
-                    Forms\Components\TextInput::make('title')
+                Section::make()->schema([
+                    TextInput::make('title')
                         ->label('Título:')
                         ->required()
                         ->maxLength(255)
@@ -42,7 +44,7 @@ class PostResource extends Resource
                         })
                         ->autocomplete(false)
                         ->columnSpanFull(),
-                    Forms\Components\RichEditor::make('content')
+                    RichEditor::make('content')
                         ->label('')
                         ->required()
                         ->disableToolbarButtons(['attachFiles'])
@@ -54,37 +56,35 @@ class PostResource extends Resource
                     ->columnSpan(2),
 
                 // Info card
-                Forms\Components\Section::make()->schema([
-                    Forms\Components\Select::make('status')
+                Section::make()->schema([
+                    Select::make('status')
                         ->label('Status:')
                         ->required()
                         ->options(function () {
-                            $options = [];
-                            foreach (PostStatus::cases() as $item) {
-                                $options[$item->value] = PostStatus::from($item->value)->getLabel();
-                            }
-                            return $options;
+                            return collect(PostStatus::cases())
+                                ->mapWithKeys(fn ($item) => [$item->value => PostStatus::from($item->value)->getLabel()])
+                                ->toArray();
                         })
-                        ->default('draft')
+                        ->default(PostStatus::DEFAULT)
                         ->selectablePlaceholder(false),
-                    Forms\Components\Select::make('categories')
+                    Select::make('categories')
                         ->label('Categorias:')
                         ->relationship('categories', 'name')
                         ->multiple()
                         ->searchable()
                         ->preload()
                         ->createOptionForm([
-                            Forms\Components\TextInput::make('name')
+                            TextInput::make('name')
                                 ->required()
                                 ->maxLength(255),
                         ]),
-                    Forms\Components\Placeholder::make('created_at')
+                    Placeholder::make('created_at')
                         ->label('Criado em:')
                         ->content(fn (?Post $record) => $record?->created_at->format('d/m/Y à\s H:i') ?? '-'),
-                    Forms\Components\Placeholder::make('updated_at')
+                    Placeholder::make('updated_at')
                         ->label('Atualizado em:')
                         ->content(fn (?Post $record) => $record?->updated_at->format('d/m/Y à\s H:i') ?? '-'),
-                    Forms\Components\Placeholder::make('words_count')
+                    Placeholder::make('words_count')
                         ->label('Palavras:')
                         ->content(fn (?Post $record) => str($record?->content)->wordCount())
                         ->extraAttributes([
@@ -114,25 +114,25 @@ class PostResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')
+                TextColumn::make('title')
                     ->limit(40)
                     ->searchable(),
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('status')
                     ->badge()
                     ->size('sm'),
-                Tables\Columns\TextColumn::make('categories.name')
+                TextColumn::make('categories.name')
                     ->label('Categorias')
                     ->badge()
                     ->color('gray')
                     ->size('sm')
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->label('Criado em')
                     ->dateTime('d/m/Y à\s H:i')
                     ->size('sm')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->label('Modificado')
                     ->dateTime('d/m/Y à\s H:i')
                     ->size('sm')
@@ -141,11 +141,11 @@ class PostResource extends Resource
             ])
             ->defaultSort('created_at', 'DESC')
             ->filters([
-                Tables\Filters\SelectFilter::make('categories')
+                SelectFilter::make('categories')
                     ->relationship('categories', 'name')
                     ->searchable()
                     ->preload(),
-                Tables\Filters\SelectFilter::make('status')
+                SelectFilter::make('status')
                     ->label('Status:')
                     ->options([
                         'draft' => 'Rascunhos',
@@ -163,8 +163,8 @@ class PostResource extends Resource
                     }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\Action::make('view-live')
+                EditAction::make(),
+                Action::make('view-live')
                     ->label('Visualizar')
                     ->icon('heroicon-m-eye')
                     ->color('gray')
@@ -172,14 +172,14 @@ class PostResource extends Resource
                     ->openUrlInNewTab(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ])
             ->emptyStateHeading('Nenhuma postagem ainda')
             ->emptyStateDescription('')
             ->emptyStateActions([
-                Tables\Actions\Action::make('create')
+                Action::make('create')
                     ->label('Criar primeira postagem')
                     ->url(PostResource::getUrl('create'))
                     ->icon('heroicon-m-plus')
