@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\CategoryResource\Pages;
-use App\Filament\Resources\CategoryResource\RelationManagers;
-use App\Models\Category;
+use App\Filament\Resources\TagResource\Pages;
+use App\Filament\Resources\TagResource\RelationManagers;
+use App\Models\Tag;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,11 +15,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class CategoryResource extends Resource
+class TagResource extends Resource
 {
-    protected static ?string $model = Category::class;
-    protected static ?string $modelLabel = 'categoria';
-    protected static ?string $pluralModelLabel = 'categorias';
+    protected static ?string $model = Tag::class;
+    protected static ?string $modelLabel = 'tag';
+    protected static ?string $pluralModelLabel = 'tags';
     protected static ?string $navigationIcon = 'heroicon-o-tag';
     protected static ?int $navigationSort = 1;
 
@@ -30,7 +30,7 @@ class CategoryResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255)
-                    ->unique('categories', 'name', ignoreRecord: true)
+                    ->unique('tags', 'name', ignoreRecord: true)
                     ->columnSpanFull(),
             ]);
     }
@@ -43,9 +43,9 @@ class CategoryResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->columnSpanFull(),
-                TextColumn::make('posts_count')
-                    ->label('Postagens')
-                    ->counts('posts')
+                TextColumn::make('releases_count')
+                    ->label('Lançamentos')
+                    ->counts('releases')
                     ->toggleable(),
                 TextColumn::make('created_at')
                     ->label('Criado em')
@@ -71,7 +71,7 @@ class CategoryResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->emptyStateHeading('Nenhuma categoria criada ainda');
+            ->emptyStateHeading('Nenhuma tag criada ainda');
     }
 
     public static function getRelations(): array
@@ -84,9 +84,9 @@ class CategoryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCategories::route('/'),
-            // 'create' => Pages\CreateCategory::route('/create'),
-            // 'edit' => Pages\EditCategory::route('/{record}/edit'),
+            'index' => Pages\ListTags::route('/'),
+            // 'create' => Pages\CreateTag::route('/create'),
+            // 'edit' => Pages\EditTag::route('/{record}/edit'),
         ];
     }
 }

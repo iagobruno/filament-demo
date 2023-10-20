@@ -2,8 +2,8 @@
 
 namespace App\Filament\Pages\Tenancy;
 
-use App\Filament\Resources\PostResource;
-use App\Models\Blog;
+use App\Filament\Resources\ReleaseResource;
+use App\Models\Project;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\{Placeholder, TextInput, Toggle};
 use Filament\Forms\Form;
@@ -14,13 +14,13 @@ use Cviebrock\EloquentSluggable\Services\SlugService;
 use Filament\Notifications\Actions\Action as NotificationAction;
 use Filament\Notifications\Notification;
 
-class RegisterBlog extends RegisterTenant
+class RegisterProject extends RegisterTenant
 {
-    public static ?string $slug = 'criar-blog';
+    public static ?string $slug = 'criar-projeto';
 
     public static function getLabel(): string
     {
-        return 'Criar novo blog';
+        return 'Criar novo projeto';
     }
 
     public function form(Form $form): Form
@@ -34,10 +34,10 @@ class RegisterBlog extends RegisterTenant
                     ->live(debounce: 300)
                     ->autocomplete(false),
                 Placeholder::make('slug')
-                    ->label('O endereço do seu blog será:')
+                    ->label('O endereço será:')
                     ->content(function (Get $get): string {
-                        $slug = SlugService::createSlug(Blog::class, 'slug', $get('title'));
-                        return route('blog-homepage', ['blog' => $slug]);
+                        $slug = SlugService::createSlug(Project::class, 'slug', $get('title'));
+                        return route('blog-homepage', [$slug]);
                     })
                     ->visible(fn (Get $get) => strlen($get('title') > 0)),
                 Toggle::make('terms_of_service')
@@ -46,30 +46,30 @@ class RegisterBlog extends RegisterTenant
             ]);
     }
 
-    protected function handleRegistration(array $data): Blog
+    protected function handleRegistration(array $data): Project
     {
         $data = collect($data)
             ->except(['terms_of_service'])
             ->toArray();
-        $blog = Blog::create($data);
+        $project = Project::create($data);
 
         Notification::make()
-            ->title('Blog criado com sucesso!')
+            ->title('Projeto criado com sucesso!')
             ->success()
             ->seconds(60)
             ->actions([
-                NotificationAction::make('create-post')
-                    ->label('Criar primeira postagem')
-                    ->url(PostResource::getUrl('create', ['tenant' => $blog->slug]))
+                NotificationAction::make('create-release')
+                    ->label('Criar primeiro lançamento')
+                    ->url(ReleaseResource::getUrl('create', ['tenant' => $project->slug]))
                     ->button(),
                 NotificationAction::make('view')
                     ->label('Visualizar')
-                    ->url(route('blog-homepage', [$blog->slug]))
+                    ->url(route('blog-homepage', [$project->slug]))
                     ->openUrlInNewTab(),
             ])
             ->send();
 
-        return $blog;
+        return $project;
     }
 
     protected function getRedirectUrl(): ?string

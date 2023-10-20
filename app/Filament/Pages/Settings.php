@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\Blog;
+use App\Models\Project;
 use Filament\Forms\Form;
 use Filament\Forms\Components\{Section, Grid, TextInput, Toggle, Select, ColorPicker, FileUpload};
 use Filament\Actions;
@@ -17,7 +17,7 @@ class Settings extends Page
     use InteractsWithForms, InteractsWithFormActions;
 
     protected static ?string $title = 'Configurações';
-    protected ?string $subheading = 'Gerencie as configurações do seu blog';
+    protected ?string $subheading = 'Gerencie as configurações do seu projeto';
     protected static ?string $navigationLabel = 'Configurações';
     protected static ?string $navigationIcon = 'heroicon-o-cog-8-tooth';
     protected static ?int $navigationSort = 2;
@@ -27,11 +27,11 @@ class Settings extends Page
 
     public function mount(): void
     {
-        $blog = Filament::getTenant();
-        // dump($blog->toArray());
+        $project = Filament::getTenant();
+        // dump($project->toArray());
         $this->form->fill([
-            ...$blog->settings,
-            ...$blog->only(['title', 'slug']),
+            ...$project->settings,
+            ...$project->only(['title', 'slug']),
         ]);
     }
 
@@ -40,15 +40,15 @@ class Settings extends Page
         $data = collect($this->form->getState())
             // ->dd() // Debug
             ->whereNotNull();
-        $blogFields = ['title', 'slug'];
-        $blogSettings = $data->only($blogFields)->toArray();
-        $updatedSettings = $data->except($blogFields)->toArray();
+        $projectFields = ['title', 'slug'];
+        $projectSettings = $data->only($projectFields)->toArray();
+        $updatedSettings = $data->except($projectFields)->toArray();
 
-        $blog = Filament::getTenant();
-        $blog->update([
-            ...$blogSettings,
+        $project = Filament::getTenant();
+        $project->update([
+            ...$projectSettings,
             'settings' => [
-                ...$blog->settings ?? [],
+                ...$project->settings ?? [],
                 ...$updatedSettings,
             ],
         ]);
@@ -69,34 +69,35 @@ class Settings extends Page
                     ->aside()
                     ->schema([
                         TextInput::make('title')
+                            ->label('Título')
                             ->required()
                             ->maxLength(255)
-                            ->helperText('Este é o título que será mostrado na parte superior do blog.'),
+                            ->helperText('Este é o título que será mostrado na para os usuários do seu site.'),
                         TextInput::make('description')
                             ->label('Descrição')
                             ->maxLength(255),
                         Toggle::make('adult')
                             ->label('Conteúdo adulto')
-                            ->helperText('Mostrar aviso aos leitores do blog')
+                            ->helperText('Mostrar aviso aos leitores do site')
                             ->default(false)
                     ]),
 
                 Section::make('Domínio')
-                    ->description('As pessoas encontrarão seu blog on-line neste endereço da Web')
+                    ->description('As pessoas encontrarão seu site on-line neste endereço da Web')
                     ->aside()
                     ->schema([
                         TextInput::make('slug')
-                            ->label('Endereço do blog')
+                            ->label('Endereço')
                             ->required()
                             ->alphaDash()
                             ->maxLength(24)
                             ->live(debounce: 300)
                             ->suffix(fn () => '.' . preg_replace('/^http(s)?:\/\//', '', config('app.url')))
-                            ->unique('blogs', 'slug', ignorable: Filament::getTenant()),
+                            ->unique('projects', 'slug', ignorable: Filament::getTenant()),
                     ]),
 
                 Section::make('Aparência')
-                    ->description('Personalize como as pessoas verão seu blog')
+                    ->description('Personalize como as pessoas verão seu site')
                     ->aside()
                     ->schema([
                         Grid::make()->schema([
@@ -130,11 +131,11 @@ class Settings extends Page
                     ->aside()
                     ->schema([
                         Toggle::make('public')
-                            ->label('Blog público')
-                            ->helperText('Pemitir que qualquer pessoa com o endereço acesse seu blog. Ao desativar essa opção só você poderá visualizar as páginas.'),
+                            ->label('Visível ao público')
+                            ->helperText('Pemitir que qualquer pessoa com o endereço acesse seu site. Ao desativar essa opção só você poderá visualizar as páginas.'),
                         Toggle::make('indexing')
                             ->label('Visível para mecanismos de pesquisa')
-                            ->helperText('Permitir que mecanismos de pesquisa encontrem seu blog'),
+                            ->helperText('Permitir que mecanismos de pesquisa encontrem seu site'),
                     ]),
             ]);
     }

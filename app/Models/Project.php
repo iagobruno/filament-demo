@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Cviebrock\EloquentSluggable\Sluggable;
 
-class Blog extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
+class Project extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
 {
     use HasFactory;
     use Sluggable;
@@ -32,26 +32,26 @@ class Blog extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
         return $this->belongsTo(User::class);
     }
 
-    public function posts()
+    public function releases()
     {
-        return $this->hasMany(Post::class);
+        return $this->hasMany(Release::class);
     }
 
-    public function categories()
+    public function tags()
     {
-        return $this->hasMany(Category::class);
+        return $this->hasMany(Tag::class);
     }
 
     protected static function booted(): void
     {
         if (auth()->check()) {
-            static::creating(function (Blog $blog) {
-                $blog->owner_id = auth()->user()->id;
+            static::creating(function (Project $project) {
+                $project->owner_id = auth()->user()->id;
             });
         }
 
-        static::creating(function (Blog $blog) {
-            $blog->settings = self::$defaultSettings;
+        static::creating(function (Project $project) {
+            $project->settings = self::$defaultSettings;
         });
     }
 
@@ -77,6 +77,6 @@ class Blog extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
 
     public function getCurrentTenantLabel(): string
     {
-        return 'Gerenciando:';
+        return 'Projeto:';
     }
 }

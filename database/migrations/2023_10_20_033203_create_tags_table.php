@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('categories', function (Blueprint $table) {
+        Schema::create('tags', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->foreignId('blog_id')->constrained('blogs');
+            $table->foreignId('project_id')->constrained('projects');
             $table->timestamps();
         });
 
-        Schema::create('category_post', function (Blueprint $table) {
+        Schema::create('release_tag', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('post_id')->constrained('posts');
-            $table->foreignId('category_id')->constrained('categories');
+            $table->foreignId('release_id')->constrained('releases');
+            $table->foreignId('tag_id')->constrained('tags');
             $table->timestamps();
         });
     }
@@ -32,7 +32,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('category_post');
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('release_tag');
+        Schema::dropIfExists('tags');
     }
 };

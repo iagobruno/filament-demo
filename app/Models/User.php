@@ -40,9 +40,9 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         'password' => 'hashed',
     ];
 
-    public function blogs(): HasMany
+    public function projects(): HasMany
     {
-        return $this->hasMany(Blog::class, foreignKey: 'owner_id');
+        return $this->hasMany(Project::class, foreignKey: 'owner_id');
     }
 
     public function canAccessPanel(Panel $panel): bool
@@ -52,11 +52,11 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
     public function getTenants(Panel $panel): Collection
     {
-        return $this->blogs;
+        return $this->projects;
     }
 
     public function canAccessTenant(Model $tenant): bool
     {
-        return $this->blogs->contains($tenant);
+        return $this->projects->contains($tenant);
     }
 }

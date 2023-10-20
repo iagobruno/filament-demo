@@ -2,14 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Enums\PostStatus;
+use App\Enums\ReleaseStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Post>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Release>
  */
-class PostFactory extends Factory
+class ReleaseFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -22,7 +22,7 @@ class PostFactory extends Factory
             'title' => $title = fake()->words(6, true),
             'slug' => Str::slug($title),
             'content' => fake()->paragraphs(4, asText: true),
-            'status' => fake()->randomElement(PostStatus::values())
+            'status' => fake()->randomElement(ReleaseStatus::values())
         ];
     }
 }

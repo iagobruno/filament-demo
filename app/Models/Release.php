@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use App\Enums\PostStatus;
+use App\Enums\ReleaseStatus;
 use App\Models\Traits\BelongsToTenant;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany};
 
-class Post extends Model
+class Release extends Model
 {
     use HasFactory;
     use Sluggable;
@@ -26,12 +26,12 @@ class Post extends Model
      * @var array
      */
     protected $casts = [
-        'status' => PostStatus::class,
+        'status' => ReleaseStatus::class,
     ];
 
-    public function categories(): BelongsToMany
+    public function tags(): BelongsToMany
     {
-        return $this->belongsToMany(Category::class)->withTimestamps();
+        return $this->belongsToMany(Tag::class)->withTimestamps();
     }
 
     public function sluggable(): array

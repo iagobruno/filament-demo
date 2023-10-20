@@ -7,7 +7,7 @@ use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Category extends Model
+class Tag extends Model
 {
     use HasFactory;
     use Sluggable;
@@ -18,9 +18,9 @@ class Category extends Model
         'project_id',
     ];
 
-    public function posts()
+    public function releases()
     {
-        return $this->belongsToMany(Post::class)->withTimestamps();
+        return $this->belongsToMany(Release::class)->withTimestamps();
     }
 
     public function sluggable(): array

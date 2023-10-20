@@ -30,11 +30,12 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->registration()
             ->passwordReset()
+            ->profile()
             ->tenant(
-                \App\Models\Blog::class,
+                \App\Models\Project::class,
                 slugAttribute: 'slug',
             )
-            ->tenantRegistration(\App\Filament\Pages\Tenancy\RegisterBlog::class)
+            ->tenantRegistration(\App\Filament\Pages\Tenancy\RegisterProject::class)
             ->colors([
                 'primary' => Color::Indigo,
             ])

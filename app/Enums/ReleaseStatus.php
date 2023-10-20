@@ -5,7 +5,7 @@ namespace App\Enums;
 use App\Enums\Concerns\Utilities;
 use Filament\Support\Contracts\{HasColor, HasIcon, HasLabel};
 
-enum PostStatus: string implements HasLabel, HasIcon, HasColor
+enum ReleaseStatus: string implements HasLabel, HasIcon, HasColor
 {
     use Utilities;
 

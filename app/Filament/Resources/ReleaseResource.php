@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources;
 
-use App\Enums\PostStatus;
-use App\Filament\Resources\PostResource\Pages;
-use App\Filament\Resources\PostResource\RelationManagers;
-use App\Models\Post;
+use App\Enums\ReleaseStatus;
+use App\Filament\Resources\ReleaseResource\Pages;
+use App\Filament\Resources\ReleaseResource\RelationManagers;
+use App\Models\Release;
 use Cviebrock\EloquentSluggable\Services\SlugService;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\{Placeholder, RichEditor, Section, Select, TextInput};
@@ -18,11 +18,11 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class PostResource extends Resource
+class ReleaseResource extends Resource
 {
-    protected static ?string $model = Post::class;
-    protected static ?string $modelLabel = 'postagem';
-    protected static ?string $pluralModelLabel = 'postagens';
+    protected static ?string $model = Release::class;
+    protected static ?string $modelLabel = 'lançamento';
+    protected static ?string $pluralModelLabel = 'lançamentos';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -38,9 +38,9 @@ class PostResource extends Resource
                         ->live(onBlur: true)
                         ->helperText(function ($state, $record) {
                             if ($record?->slug) $slug = $record->slug;
-                            else $slug = $state ? SlugService::createSlug(Post::class, 'slug', $state) : '...';
+                            else $slug = $state ? SlugService::createSlug(Release::class, 'slug', $state) : '...';
 
-                            return route('blog-post', ['post' => $slug, 'blog' => Filament::getTenant()->slug]);
+                            return route('blog-release', ['release' => $slug, 'project' => Filament::getTenant()->slug]);
                         })
                         ->autocomplete(false)
                         ->columnSpanFull(),
@@ -61,16 +61,16 @@ class PostResource extends Resource
                         ->label('Status:')
                         ->required()
                         ->options(function () {
-                            return collect(PostStatus::cases())
-                                ->mapWithKeys(fn ($item) => [$item->value => PostStatus::from($item->value)->getLabel()])
+                            return collect(ReleaseStatus::cases())
+                                ->mapWithKeys(fn ($item) => [$item->value => ReleaseStatus::from($item->value)->getLabel()])
                                 ->toArray();
                         })
-                        ->default(PostStatus::DEFAULT)
+                        ->default(ReleaseStatus::DEFAULT)
                         ->selectablePlaceholder(false),
-                    Select::make('categories')
-                        ->label('Categorias:')
+                    Select::make('tags')
+                        ->label('Tags:')
                         ->relationship(
-                            'categories',
+                            'tags',
                             titleAttribute: 'name',
                             modifyQueryUsing: fn ($query) => $query->whereBelongsTo(Filament::getTenant())
                         )
@@ -84,13 +84,13 @@ class PostResource extends Resource
                         ]),
                     Placeholder::make('created_at')
                         ->label('Criado em:')
-                        ->content(fn (?Post $record) => $record?->created_at->format('d/m/Y à\s H:i') ?? '-'),
+                        ->content(fn (?Release $record) => $record?->created_at->format('d/m/Y à\s H:i') ?? '-'),
                     Placeholder::make('updated_at')
                         ->label('Atualizado em:')
-                        ->content(fn (?Post $record) => $record?->updated_at->format('d/m/Y à\s H:i') ?? '-'),
+                        ->content(fn (?Release $record) => $record?->updated_at->format('d/m/Y à\s H:i') ?? '-'),
                     Placeholder::make('words_count')
                         ->label('Palavras:')
-                        ->content(fn (?Post $record) => str($record?->content)->wordCount())
+                        ->content(fn (?Release $record) => str($record?->content)->wordCount())
                         ->extraAttributes([
                             'x-init' => "
                                     document.getElementById('data.content').addEventListener('keyup', debounce((evt) => {
@@ -124,8 +124,8 @@ class PostResource extends Resource
                 TextColumn::make('status')
                     ->badge()
                     ->size('sm'),
-                TextColumn::make('categories.name')
-                    ->label('Categorias')
+                TextColumn::make('tags.name')
+                    ->label('Tags')
                     ->badge()
                     ->color('gray')
                     ->size('sm')
@@ -145,8 +145,8 @@ class PostResource extends Resource
             ])
             ->defaultSort('created_at', 'DESC')
             ->filters([
-                SelectFilter::make('categories')
-                    ->relationship('categories', 'name')
+                SelectFilter::make('tags')
+                    ->relationship('tags', 'name')
                     ->searchable()
                     ->preload(),
                 SelectFilter::make('status')
@@ -159,9 +159,9 @@ class PostResource extends Resource
                     ->placeholder('Todos')
                     ->query(function (Builder $query, $state) {
                         return match ($state['value']) {
-                            'draft' => $query->where('status', PostStatus::Draft->value),
-                            'public' => $query->where('status', PostStatus::Public->value),
-                            'private' => $query->where('status', PostStatus::Private->value),
+                            'draft' => $query->where('status', ReleaseStatus::Draft->value),
+                            'public' => $query->where('status', ReleaseStatus::Public->value),
+                            'private' => $query->where('status', ReleaseStatus::Private->value),
                             default => $query,
                         };
                     }),
@@ -172,7 +172,7 @@ class PostResource extends Resource
                     ->label('Visualizar')
                     ->icon('heroicon-m-eye')
                     ->color('gray')
-                    ->url(fn (Post $record): string => route('blog-post', ['post' => $record->slug, 'blog' => Filament::getTenant()->slug]))
+                    ->url(fn (Release $record): string => route('blog-release', ['release' => $record->slug, 'project' => Filament::getTenant()->slug]))
                     ->openUrlInNewTab(),
             ])
             ->bulkActions([
@@ -180,12 +180,12 @@ class PostResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ])
-            ->emptyStateHeading('Nenhuma postagem ainda')
+            ->emptyStateHeading('Nenhum lançamento ainda')
             ->emptyStateDescription('')
             ->emptyStateActions([
                 Action::make('create')
-                    ->label('Criar primeira postagem')
-                    ->url(PostResource::getUrl('create'))
+                    ->label('Criar primeiro lançamento')
+                    ->url(ReleaseResource::getUrl('create'))
                     ->icon('heroicon-m-plus')
                     ->button(),
             ]);;
@@ -201,9 +201,9 @@ class PostResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPosts::route('/'),
-            'create' => Pages\CreatePost::route('/create'),
-            'edit' => Pages\EditPost::route('/{record}/edit'),
+            'index' => Pages\ListReleases::route('/'),
+            'create' => Pages\CreateRelease::route('/create'),
+            'edit' => Pages\EditRelease::route('/{record}/edit'),
         ];
     }
 }

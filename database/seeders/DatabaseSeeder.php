@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\{Blog, Category, Post, User};
+use App\Models\{Project, Tag, Release, User};
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,13 +19,13 @@ class DatabaseSeeder extends Seeder
         $password = '12345678';
         User::factory()
             ->has(
-                Blog::factory(2)
+                Project::factory(2)
                     ->has(
-                        Post::factory(10)
+                        Release::factory(10)
                             ->has(
-                                Category::factory(3)
-                                    ->state(function (array $attributes, Post $post) {
-                                        return ['blog_id' => $post->blog_id];
+                                Tag::factory(3)
+                                    ->state(function (array $attributes, Release $release) {
+                                        return ['project_id' => $release->project_id];
                                     })
                             )
                     )
