@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToTenant;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,16 +11,12 @@ class Category extends Model
 {
     use HasFactory;
     use Sluggable;
+    use BelongsToTenant;
 
     public $guarded = [
         'slug',
-        'blog_id',
+        'project_id',
     ];
-
-    public function blog()
-    {
-        return $this->belongsTo(Blog::class);
-    }
 
     public function posts()
     {
