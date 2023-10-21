@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\ReleaseStatus;
+use App\Enums\ReleaseType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -19,6 +20,7 @@ class ReleaseFactory extends Factory
     public function definition(): array
     {
         return [
+            'type' => fake()->randomElement(ReleaseType::values()),
             'title' => $title = fake()->words(6, true),
             'slug' => Str::slug($title),
             'content' => fake()->paragraphs(4, asText: true),

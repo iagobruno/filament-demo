@@ -13,4 +13,13 @@ trait Utilities
     {
         return array_column(static::cases(), 'name');
     }
+
+    public static function generateSelectOptions(): array
+    {
+        return collect(static::cases())
+            ->mapWithKeys(function ($item) {
+                return [$item->value => static::from($item->value)->getLabel()];
+            })
+            ->toArray();
+    }
 }

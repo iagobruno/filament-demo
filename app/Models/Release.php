@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ReleaseStatus;
+use App\Enums\ReleaseType;
 use App\Models\Traits\BelongsToTenant;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,6 +27,7 @@ class Release extends Model
      * @var array
      */
     protected $casts = [
+        'type' => ReleaseType::class,
         'status' => ReleaseStatus::class,
     ];
 

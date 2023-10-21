@@ -2,13 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\ReleaseType;
 use App\Enums\ReleaseStatus;
 use App\Filament\Resources\ReleaseResource\Pages;
 use App\Filament\Resources\ReleaseResource\RelationManagers;
 use App\Models\Release;
 use Cviebrock\EloquentSluggable\Services\SlugService;
 use Filament\Facades\Filament;
-use Filament\Forms\Components\{Placeholder, RichEditor, Section, Select, TextInput};
+use Filament\Forms\Components\{Grid, Placeholder, RichEditor, Section, Select, TextInput};
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables\Columns\{TextColumn};
@@ -31,19 +32,29 @@ class ReleaseResource extends Resource
             ->schema([
                 // Content card
                 Section::make()->schema([
-                    TextInput::make('title')
-                        ->label('Título:')
-                        ->required()
-                        ->maxLength(255)
-                        ->live(onBlur: true)
-                        ->helperText(function ($state, $record) {
-                            if ($record?->slug) $slug = $record->slug;
-                            else $slug = $state ? SlugService::createSlug(Release::class, 'slug', $state) : '...';
+                    Grid::make()->schema([
+                        Select::make('type')
+                            ->label('Tipo:')
+                            ->required()
+                            ->options(fn () => ReleaseType::generateSelectOptions())
+                            ->default(ReleaseType::DEFAULT)
+                            ->selectablePlaceholder(false)
+                            ->columnSpan(1),
+                        TextInput::make('title')
+                            ->label('Título:')
+                            ->required()
+                            ->maxLength(255)
+                            ->live(onBlur: true)
+                            ->helperText(function ($state, $record) {
+                                if ($record?->slug) $slug = $record->slug;
+                                else $slug = $state ? SlugService::createSlug(Release::class, 'slug', $state) : '...';
 
-                            return route('blog-release', ['release' => $slug, 'project' => Filament::getTenant()->slug]);
-                        })
-                        ->autocomplete(false)
-                        ->columnSpanFull(),
+                                return route('blog-release', ['release' => $slug, 'project' => Filament::getTenant()->slug]);
+                            })
+                            ->autocomplete(false)
+                            ->columnSpan(3),
+                    ])
+                        ->columns(4),
                     RichEditor::make('content')
                         ->label('')
                         ->required()
@@ -60,11 +71,7 @@ class ReleaseResource extends Resource
                     Select::make('status')
                         ->label('Status:')
                         ->required()
-                        ->options(function () {
-                            return collect(ReleaseStatus::cases())
-                                ->mapWithKeys(fn ($item) => [$item->value => ReleaseStatus::from($item->value)->getLabel()])
-                                ->toArray();
-                        })
+                        ->options(fn () => ReleaseStatus::generateSelectOptions())
                         ->default(ReleaseStatus::DEFAULT)
                         ->selectablePlaceholder(false),
                     Select::make('tags')
@@ -118,6 +125,11 @@ class ReleaseResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('type')
+                    ->label('Tipo')
+                    ->badge()
+                    ->size('sm')
+                    ->toggleable(),
                 TextColumn::make('title')
                     ->limit(40)
                     ->searchable(),

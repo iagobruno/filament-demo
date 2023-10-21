@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('releases', function (Blueprint $table) {
             $table->id();
+            $table->string('type');
             $table->string('title');
             $table->string('status')->default('public');
             $table->string('slug')->unique();
