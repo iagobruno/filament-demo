@@ -38,21 +38,8 @@ class SettingsPage extends Page
 
     public function save(): void
     {
-        $data = collect($this->form->getState())
-            // ->dd() // Debug
-            ->whereNotNull();
-        $projectFields = ['title', 'slug'];
-        $projectSettings = $data->only($projectFields)->toArray();
-        $updatedSettings = $data->except($projectFields)->toArray();
-
         $project = Filament::getTenant();
-        $project->update([
-            ...$projectSettings,
-            'settings' => [
-                ...$project->settings ?? [],
-                ...$updatedSettings,
-            ],
-        ]);
+        $project->updateSettings($this->form->getState());
 
         Notification::make()
             ->title('Configurações atualizadas!')

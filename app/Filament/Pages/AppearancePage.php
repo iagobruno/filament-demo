@@ -34,17 +34,8 @@ class AppearancePage extends Page
 
     public function save(): void
     {
-        $updatedSettings = collect($this->form->getState())
-            // ->dd() // Debug
-            ->whereNotNull();
-
         $project = Filament::getTenant();
-        $project->update([
-            'settings' => [
-                ...$project->settings ?? [],
-                ...$updatedSettings,
-            ],
-        ]);
+        $project->updateSettings($this->form->getState());
 
         Notification::make()
             ->title('Alterações foram salvas!')

@@ -20,13 +20,6 @@ class Project extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
         'settings' => 'array',
     ];
 
-    public static $defaultSettings = [
-        'theme' => 'light',
-        'public' => true,
-        'indexing' => true,
-        'adult' => false,
-    ];
-
     public function owner()
     {
         return $this->belongsTo(User::class);
@@ -40,6 +33,29 @@ class Project extends Model implements HasName, HasCurrentTenantLabel, HasAvatar
     public function tags()
     {
         return $this->hasMany(Tag::class);
+    }
+
+    public static $defaultSettings = [
+        'theme' => 'light',
+        'public' => true,
+        'indexing' => true,
+        'adult' => false,
+    ];
+
+    public function updateSettings(array $data)
+    {
+        $data = collect($data)
+            // ->dd() // Debug
+            ->whereNotNull();
+        $projectFields = ['title', 'slug'];
+
+        $this->update([
+            ...$data->only($projectFields),
+            'settings' => [
+                ...$this->settings ?? [],
+                ...$data->except($projectFields),
+            ],
+        ]);
     }
 
     protected static function booted(): void
