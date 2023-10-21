@@ -12,10 +12,11 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\InteractsWithFormActions;
 use Filament\Pages\Page;
 
-class Settings extends Page
+class SettingsPage extends Page
 {
     use InteractsWithForms, InteractsWithFormActions;
 
+    protected static ?string $slug = 'settings';
     protected static ?string $title = 'Configurações';
     protected ?string $subheading = 'Gerencie as configurações do seu projeto';
     protected static ?string $navigationLabel = 'Configurações';
@@ -66,6 +67,7 @@ class Settings extends Page
             ->schema([
                 Section::make('Geral')
                     ->description('Configurações básicas')
+                    ->icon('heroicon-m-identification')
                     ->aside()
                     ->schema([
                         TextInput::make('title')
@@ -84,6 +86,7 @@ class Settings extends Page
 
                 Section::make('Domínio')
                     ->description('As pessoas encontrarão seu site on-line neste endereço da Web')
+                    ->icon('heroicon-m-globe-alt')
                     ->aside()
                     ->schema([
                         TextInput::make('slug')
@@ -98,6 +101,7 @@ class Settings extends Page
 
                 Section::make('Privacidade')
                     ->description('Configurações de segurança')
+                    ->icon('heroicon-m-lock-closed')
                     ->aside()
                     ->schema([
                         Toggle::make('public')
