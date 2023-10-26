@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Enums\PrimaryColor;
 use Filament\Pages\Page;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Pages\Concerns\InteractsWithFormActions;
@@ -82,9 +83,21 @@ class AppearancePage extends Page
                                 'light' => 'Claro'
                             ])
                             ->selectablePlaceholder(false),
-                        ColorPicker::make('color')
+                        Select::make('primary_color')
                             ->label('Cor primária')
-                            ->helperText('Será usado nos links e botões'),
+                            ->helperText('Será usado nos links e botões')
+                            ->native(false)
+                            ->allowHtml()
+                            ->selectablePlaceholder(false)
+                            ->default(PrimaryColor::DEFAULT)
+                            ->options(
+                                collect(PrimaryColor::cases())->mapWithKeys(fn ($case) => [
+                                    $case->value => "<span class='flex items-center gap-x-4'>
+                                        <span class='rounded-full w-4 h-4' style='background:rgb(" . $case->getColor()[600] . ")'></span>
+                                        <span>" . str($case->value)->title() . '</span>
+                                        </span>',
+                                ]),
+                            ),
                         ColorPicker::make('background_color')
                             ->label('Plano de fundo'),
                     ]),
