@@ -1,0 +1,19 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@config './tailwind.config.js';
+
+.fi-topbar {
+    @apply !relative;
+}
+
+.fi-topbar>nav {
+    @apply !bg-[unset] !ring-[none];
+}
+
+.fi-sidebar {
+    @apply !bg-gray-100/80 dark:!bg-gray-900/50;
+}
+
+.fi-sidebar-header {
+    @apply !bg-[unset] !ring-[none] justify-center;
+}

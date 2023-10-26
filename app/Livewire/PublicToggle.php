@@ -3,7 +3,8 @@
 namespace App\Livewire;
 
 use Filament\Facades\Filament;
-use Filament\Forms\Components\{Section, Toggle};
+use Filament\Forms\Components\{Actions, Section, Toggle};
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -41,10 +42,21 @@ class PublicToggle extends Component implements HasForms
             Section::make()
                 ->compact()
                 ->extraAttributes(['style' => 'margin-top: 24px'])
+                ->columns(5)
                 ->schema([
                     Toggle::make('is_public')
                         ->label('Visível ao público')
                         ->live()
+                        ->columnSpan(4),
+                    Actions::make([
+                        Action::make('view-live')
+                            ->iconButton()
+                            ->icon('heroicon-m-eye')
+                            ->url(route('blog-homepage', [Filament::getTenant()->slug]))
+                            ->openUrlInNewTab()
+                            ->tooltip('Ver blog em outra guia')
+                            ->size(\Filament\Support\Enums\ActionSize::ExtraSmall),
+                    ]),
                 ])
         ]);
     }
